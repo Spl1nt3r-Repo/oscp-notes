@@ -7,11 +7,13 @@
 5. https://www.netsecfocus.com/oscp/2019/03/29/The_Journey_to_Try_Harder-_TJNulls_Preparation_Guide_for_PWK_OSCP.html
 6. https://anhtai.me/oscp-fun-guide/
 
-# Lot of links
+# Links with lot of links
 
 * https://happyf337.blogspot.com/2017/07/are-you-ready-for-oscp.html
 * https://zsahi.wordpress.com/oscp-notes-collection/
 
-# Cover your tracks
+# Misc
+
+## Cover your tracks
 
 * https://sushant747.gitbooks.io/total-oscp-guide/clean_up.html

