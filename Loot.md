@@ -265,6 +265,10 @@ c:\Program Files\Apache Group\Apache\logs\error.log
 ```
 
 ```
+dir /s php.ini httpd.conf httpd-xampp.conf my.ini my.cnf
+```
+
+```
 c:\WINDOWS\TEMP\  
 c:\php\sessions\  
 c:\php5\sessions\  
@@ -316,6 +320,18 @@ C:\> reg.exe save hklm\system c:\windows\temp\system.save
 ```
 
 The hashes can be extracted using `secretdump.py` or `pwdump`.
+
+Locations where `SAM` and `SYSTEM` can be found:
+```
+Systemroot can be windows
+%SYSTEMROOT%\repair\SAM
+windows\repair\SAM
+%SYSTEMROOT%\System32\config\RegBack\SAM
+
+System file can be found here
+SYSTEMROOT%\repair\system
+%SYSTEMROOT%\System32\config\RegBack\system
+```
 
 ### Dump cached credentials
 

