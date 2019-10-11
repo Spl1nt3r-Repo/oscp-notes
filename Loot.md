@@ -182,6 +182,11 @@ Inspect web traffic:
 tcpdump tcp port 80 -w output.pcap -i eth0
 ```
 
+Inspect ldap traffic:
+```
+tcpdump -i lo -nnXs 0 'port 389'
+```
+
 This will grep all GET from the wlan0 interface:
 ```
 tcpdump -i wlan0 -vvv -A | grep "GET"
@@ -189,7 +194,7 @@ tcpdump -i wlan0 -vvv -A | grep "GET"
 
 Print the traffic in hex with ascii interpretation:
 ```
-tcpdump -nX -r file.pcap
+tcpdump -nnXs 0 -r file.pcap
 ```
 
 ### Extract passwords from PCAP

