@@ -144,6 +144,7 @@ pkg_info
 * https://guif.re/windowseop
 * https://www.absolomb.com/2018-01-26-Windows-Privilege-Escalation-Guide/
 * https://sushant747.gitbooks.io/total-oscp-guide/privilege_escalation_windows.html
+* https://morph3sec.com/2019/07/16/Cheat-Sheets/Windows-Red-Team-Cheat-Sheet/
 
 **Tips**
 
