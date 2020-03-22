@@ -136,6 +136,7 @@ pkg_info
 
 * YOUTUBE: https://www.youtube.com/channel/UCcU4a3acOkH43EjNfpprIEw
 
+* https://github.com/sagishahar/lpeworkshop/blob/master/Lab%20Exercises%20Walkthrough%20-%20Windows.pdf
 * https://github.com/740i/pentest-notes/blob/master/windows-privesc.md
 * https://github.com/swisskyrepo/PayloadsAllTheThings/blob/master/Methodology%20and%20Resources/Windows%20-%20Privilege%20Escalation.md
 * https://pentest.blog/windows-privilege-escalation-methods-for-pentesters/
