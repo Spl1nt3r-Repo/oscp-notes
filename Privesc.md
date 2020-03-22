@@ -7,7 +7,7 @@
 * Linux Kernel Exploits: [linux-exploit-suggester.sh](https://github.com/mzet-/linux-exploit-suggester)
 * Linux Kernel Exploits: [linux-exploit-suggester-2](https://github.com/jondonas/linux-exploit-suggester-2)
 
-## Kernel
+## Kernel
 
 :warning: Compile options to fix errors: `-Wl`, `--hash-style=both`, `-m32`
 
