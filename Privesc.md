@@ -55,7 +55,8 @@ ps -auxwwf | grep root
 ### Check vulnerable software
 
 ```
-# Debian 
+# Debian
+
 dpkg -l 
  
 # CentOS, OpenSuse, Fedora, RHEL 
@@ -151,6 +152,7 @@ pkg_info
 
 ## Enumeration
 
+* [WinPEAS](https://github.com/carlospolop/privilege-escalation-awesome-scripts-suite/tree/master/winPEAS)
 * Windows Kernel Exploit: [Windows-Exploit-Suggester](https://github.com/GDSSecurity/Windows-Exploit-Suggester)
 * Windows Exploits: [Sherlock](https://github.com/rasta-mouse/Sherlock)
 * Windows Enumeration: [Jaws](https://github.com/411Hall/JAWS)
