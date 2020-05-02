@@ -574,6 +574,10 @@ Binary available at: https://github.com/ohpe/juicy-potato/releases
         {F7FD3FD6-9994-452D-8DA7-9A8FD87AEEF4};NT AUTHORITY\SYSTEM
         [+] CreateProcessWithTokenW OK
     ```
+    
+### Win 10 / Server 2019
+
+* https://github.com/itm4n/PrintSpoofer
 
 ## From local administrator to NT SYSTEM
 
